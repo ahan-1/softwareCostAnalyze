@@ -113,7 +113,7 @@ const allApi = {
             {//菜单界面显示评估结果看板
                 name: 'evaluation-result',
                 title: '评估结果看板',
-                iconName: 'svg:laptop-check.svg',
+                iconName: 'svg:laptop.sv0//                                                                                                                                                                                                                                                                                                                                                           vvvvvvvvvg',
                 number: 1,
             },
             {
