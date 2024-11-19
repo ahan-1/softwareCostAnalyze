@@ -23,7 +23,7 @@ import Box_1 from './components/box_1.vue';
 import PieChart from './components/PieChart.vue';
 import CostStackChart from './components/CostStackChart.vue';
 import FuctionBarChart from './components/FuctionBarChart.vue';
-import Box_5 from './components/box_5.vue';
+import BubbleChart from './components/BubbleChart.vue';
 import { useRoute } from 'vue-router';
 
 export default defineComponent({
@@ -35,7 +35,7 @@ export default defineComponent({
     PieChart,
     CostStackChart,
     FuctionBarChart,
-    Box_5,
+    BubbleChart,
   },
   setup() {
     let route = useRoute();
@@ -118,7 +118,7 @@ export default defineComponent({
                 <FuctionBarChart></FuctionBarChart>
               </div>
               <div class="box">
-                <Box_5></Box_5>
+                <BubbleChart></BubbleChart>
               </div>
             </div>
           </div>

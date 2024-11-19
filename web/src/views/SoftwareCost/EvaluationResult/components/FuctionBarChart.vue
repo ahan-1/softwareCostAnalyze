@@ -1,17 +1,10 @@
 <script>
 /**
- * 成本分布饼状图
+ * 成本分布柱状图
  */
-import {
-  defineComponent,
-  ref,
-  reactive,
-  onMounted,
-  watch,
-  toRef,
-} from 'vue';
+import {defineComponent, ref, reactive, onMounted} from 'vue';
 import EchartContainer from '@/components/echartContainer.vue';
-import * as echarts from 'echarts';
+import {getProjectInfo} from '@/api/EvaluationResult/index.ts'; // 假设这是调用接口的方法
 
 export default defineComponent({
   components: {
@@ -20,50 +13,74 @@ export default defineComponent({
   props: {
     dataInfo: {
       type: Object,
-      default: () => {
-        return {};
-      },
+      default: () => ({}),
     },
   },
   setup(props) {
     const EchartContainerRef = ref(); // 图表容器实例
     const dataContainer = reactive({
       loading: false,
+      chartData: {
+        xAxis: [],
+        yAxis: [],
+      },
+      projectName: '', // 保存项目名称
     });
 
-    watch(
-        [toRef(props, 'dataInfo')],
-        () => {
-          // 可以在此处理数据更新逻辑
-          const dataInfo = props.dataInfo.data || [];
-          return;
-        },
-        {
-          immediate: true,
-        },
-    );
+    const fetchProjectData = async () => {
+      dataContainer.loading = true;
+      try {
+        const response = await getProjectInfo(1); // 调用接口获取数据
+        if (response.isOk && response.project) {
+          const {ei_num, eo_num, eq_num, ilf_num, elf_num, project_name} = response.project;
+          dataContainer.chartData.xAxis = ['ei_num', 'eo_num', 'eq_num', 'ilf_num', 'elf_num'];
+          dataContainer.chartData.yAxis = [ei_num, eo_num, eq_num, ilf_num, elf_num];
+          dataContainer.projectName = project_name; // 保存项目名称
+          updateChart();
+        }
+      } catch (error) {
+        console.error('获取项目数据失败', error);
+      } finally {
+        dataContainer.loading = false;
+      }
+    };
 
-    onMounted(() => {
+    const updateChart = () => {
       if (!EchartContainerRef.value) return;
 
-      // 饼图配置
+      // 柱状图配置
       const option = {
+        title: {
+          text: dataContainer.projectName || '成本分布柱状图', // 默认标题
+          left: 'center', // 标题居中
+          top: '5%', // 距离顶部的间距
+          textStyle: {
+            fontSize: 16,
+            fontWeight: 'bold',
+          },
+        },
         xAxis: {
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+          data: dataContainer.chartData.xAxis,
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
         },
         series: [
           {
-            data: [120, 200, 150, 80, 70, 110, 130],
-            type: 'bar'
-          }
-        ]
+            data: dataContainer.chartData.yAxis,
+            type: 'bar',
+            barWidth: '50%', // 调整柱宽度
+          },
+        ],
       };
+
       /** 初始化图表 */
       EchartContainerRef.value.initData(option);
+    };
+
+    onMounted(() => {
+      fetchProjectData(); // 获取数据
     });
 
     return {
@@ -76,7 +93,7 @@ export default defineComponent({
 
 <template>
   <div className="box-cp-container">
-    <EchartContainer ref="EchartContainerRef"></EchartContainer>
+    <EchartContainer ref="EchartContainerRef"/>
   </div>
 </template>
 
