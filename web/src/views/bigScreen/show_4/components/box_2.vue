@@ -23,15 +23,13 @@
         props: {
             data: {
                 type: Object,
-                default: () => {
-                    return {};
-                },
+                default: () => ({})
             },
         },
         setup(props) {
             console.log("---");
-            console.log(props.data)
-            const total =(props.data/100+1+0+0+0)/5
+            console.log(props.data.step);
+            const total =(props.data.step/100+1+0+0+0)/5;
             const EchartContainerRef = ref(); //组件实例
             const dataContainer = reactive({
                 loading: false,
@@ -40,7 +38,6 @@
                 [toRef(props, 'data')],
                 () => {
                     return;
-                    let data = props.data.data || [];
                 }, {
                     immediate: true,
                 },
@@ -67,12 +64,12 @@
                         },
                         label: {
                             show: false,
-                            position: 'center'
+                            position: 'center',
                         },
                         emphasis: {
                             label: {
                                 show: true,
-                                fontSize: 40,
+                                fontSize: 20,
                                 fontWeight: 'bold'
                             }
                         },
@@ -103,7 +100,7 @@
 
 <template>
     <div class="box-cp-container">
-        <div class="text_title">评估信息总览</div>
+        <div class="text_title">评估进度总览</div>
         <EchartContainer ref="EchartContainerRef"></EchartContainer>
     </div>
 </template>
@@ -117,7 +114,7 @@
     .text_title {
         text-align: center;
         /* 保持文本居中 */
-        font-size: 24px;
+        font-size: 20px;
         /* 设置字体大小为24像素 */
         color: white
     }

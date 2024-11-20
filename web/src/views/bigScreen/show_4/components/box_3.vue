@@ -29,7 +29,7 @@
             },
         },
         setup(props) {
-            console.log(props.data.step)
+            console.log(props.data.step);
             const EchartContainerRef = ref(); //组件实例
             const dataContainer = reactive({
                 loading: false,
@@ -86,7 +86,10 @@
                     },
                     xAxis: {
                         type: 'value',
-                        boundaryGap: [0, 0.01]
+                        boundaryGap: [0, 0.01],
+                        axisLine: {
+                        show: false,
+                        },
                     },
                     yAxis: [{
                         type: 'category',
@@ -172,11 +175,11 @@
 <style lang="scss" scoped>
     .box-cp-container {
         width: 100%;
-        height: 100%;
+        height: 90%;
     }
     .text_title{
     text-align: center; /* 保持文本居中 */
-    font-size: 24px; /* 设置字体大小为24像素 */
+    font-size: 20px; /* 设置字体大小为24像素 */
     color:white
     }
 </style>

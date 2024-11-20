@@ -48,7 +48,7 @@ export default defineComponent({
             if (!EchartContainerRef.value) return;
             let option = {
             legend: {
-            data: ['总工作量', '实际进度']
+            data: ['计划剩余工作量', '剩余工作量']
             },
             xAxis: {
             type: 'category',
@@ -59,12 +59,15 @@ export default defineComponent({
             },
             series: [
             {
-            name: "总工作量",
+            name: "计划剩余工作量",
             data: [35,30,25,20,15,10,5],
-            type: 'line'
+            type: 'line',
+            lineStyle: {
+            type: 'dashed' // 设置为虚线
+            }
             },
             {
-            name: "实际进度",
+            name: "剩余工作量",
             data: [35,28,22,19,10,8,3],
             type: 'line'
             }
@@ -95,7 +98,7 @@ export default defineComponent({
 }
 .text_title{
 text-align: center; /* 保持文本居中 */
-font-size: 24px; /* 设置字体大小为24像素 */
+font-size: 20px; /* 设置字体大小为24像素 */
 color:white
 }
 </style>
