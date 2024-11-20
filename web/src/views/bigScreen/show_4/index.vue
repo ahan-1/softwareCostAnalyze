@@ -70,8 +70,14 @@
                 dataContainer.status = dataContainer.piedata.status;
                 dataContainer.step = dataContainer.piedata.step;
             });
+          const projectId = localStorage.getItem('project_id');
 
-            loadData("测盟汇管理系统");
+          if (!projectId) {
+            console.error('未找到项目 ID，请先选择项目');
+            dataContainer.loading = false;
+            return;
+          }
+            loadData(Number(projectId));
             /**
              * 缩放计算事件
              *  */
@@ -87,10 +93,10 @@
                 setRem(fontSize);
             }
             /* 获取数据方法 */
-            function loadData(projectName) {
+            function loadData(project_id) {
                 axios.get('http://localhost:9000/project/findProject', {
                     params: {
-                        projectName
+                      project_id
                     }
                 }).then(res => {
                     if (res.data.isOk) {
@@ -122,7 +128,7 @@
 </script>
 
 <template>
-    <div class="big-screen-view" >
+    <div class="big-screen-view" v-if="dataContainer.piedata.step">
         <AutoScalContainerV2 :ratio="1920 / 1080" @onResizeScreen="handleResizeScreen" :fit="dataContainer.fit">
             <div class="big-screen-view-container" :style="{
                     '--bg-img-1': `url(${dataContainer.img.img_1})`,
