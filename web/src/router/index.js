@@ -107,7 +107,7 @@ export const constantRoutes = [
             },
             {
                 path: 'show-list',
-                component: () => import('@/views/exampleViews/showList/index.vue'),
+                component: () => import('@/views/showList/index.vue'),
                 name: 'show-list',
                 meta: {
                     layoutName: 'main',
