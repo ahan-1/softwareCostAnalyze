@@ -1,191 +1,202 @@
-<script>
-/**
- * 大屏主页面
- * 采用缩放的形式进行适配，搭配rem的话很方便实用
- *  */
-import {
-    defineComponent,
-    ref,
-    getCurrentInstance,
-    reactive,
-    toRef,
-    computed,
-    onMounted,
-    onActivated,
-    watch,
-    onBeforeUnmount,
-} from 'vue';
-import ViewHead from './components/viewHead.vue';
-import img_1 from './assets/bg.png';
-import img_2 from './assets/1-1-bg.png';
-import Box_1 from './components/box_1.vue';
-import Box_2 from './components/box_2.vue';
-import Box_3 from './components/box_3.vue';
-import Box_4 from './components/box_4.vue';
-import Box_5 from './components/box_5.vue';
-import { setRem } from '@/common/rem.js';
-
-export default defineComponent({
-    name: 'BigScreenView',
-    components: {
-        ViewHead,
-        Box_1,
-        Box_2,
-        Box_3,
-        Box_4,
-        Box_5,
-    },
-    setup() {
-        const ViewRef = ref(null);
-        const dataContainer = reactive({
-            loading: false,
-            img: {
-                img_1,
-                img_2,
-            },
-        });
-        /** 是否是文档上 */
-        function isActive() {
-            if (!ViewRef.value) return false;
-            return ViewRef.value.getRootNode() === document;
-        }
-        /**
-         * 计算rem
-         *  */
-        function computeRem() {
-            if (!ViewRef.value) return;
-            if (!isActive) return;
-            let rect = ViewRef.value.getBoundingClientRect();
-            let baseSize = 16; //基础大小，1倍率相当于1rem = 16像素
-            let scale = rect.width / 1920;
-            let fontSize = Math.round(baseSize * scale * 100) / 100 + 'px';
-            /**
-             * 计算缩放倍数 1920 * 1080
-             * 根据设计图自己配置
-             *  */
-            setRem(fontSize);
-        }
-        onMounted(() => {
-            computeRem();
-        });
-        let timer = setInterval(() => {
-            computeRem();
-        }, 300);
-        window.addEventListener('resize', computeRem);
-        onBeforeUnmount(() => {
-            window.removeEventListener('resize', computeRem);
-            window.clearInterval(timer);
-        });
-        return {
-            dataContainer,
-            ViewRef,
-        };
-    },
-});
-</script>
-
 <template>
-    <el-scrollbar height="100vh">
-        <div
-            ref="ViewRef"
-            class="big-screen-view"
-            :style="{
-                '--bg-img-1': `url(${dataContainer.img.img_1})`,
-                '--bg-img-2': `url(${dataContainer.img.img_2})`,
-            }"
-        >
-            <div class="head">
-                <ViewHead title="数据可视化大屏展示"></ViewHead>
-            </div>
-            <div class="content">
-                <div class="top">
-                    <Box_1></Box_1>
-                </div>
-                <div class="content">
-                    <div class="left">
-                        <div class="box">
-                            <Box_2></Box_2>
-                        </div>
-                        <div class="box">
-                            <Box_3></Box_3>
-                        </div>
-                    </div>
-                    <div class="right">
-                        <div class="box">
-                            <Box_4></Box_4>
-                        </div>
-                        <div class="box">
-                            <Box_5></Box_5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </el-scrollbar>
-</template>
-
-<style lang="scss" scoped>
-.big-screen-view {
-    /** 保持宽高比 */
-    width: 100vw;
-    height: calc(100vw / calc(1920 / 1080));
-    overflow: hidden;
-    background-color: #031045c7;
-    display: flex;
-    flex-direction: column;
-    background-image: var(--bg-img-1);
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-position: center;
-    > .head {
-        height: 5.688rem;
-    }
-    > .content {
-        display: flex;
-        flex-direction: column;
-        flex: 1 1 0;
-        width: 100%;
-        height: 0;
-        > .top {
-            width: 100%;
-            height: 12.438rem;
+    <div id="app">
+      <!-- 日历展示 -->
+      <div class="chart-container">
+        <h2>任务分配日历</h2>
+        <VueCal
+          :events="calendarEvents"
+          :language="'zh'"
+          :cell-height="50"
+          :event-style="getEventStyle" 
+        />
+      </div>
+      
+      <!-- 折线图展示 -->
+      <div class="chart-container">
+        <h2>任务分配折线图</h2>
+        <div ref="lineChart" style="width: 100%; height: 400px;"></div>
+      </div>
+  
+      <!-- 树图展示 -->
+      <div class="chart-container">
+        <h2>任务层级树图</h2>
+        <div ref="treeChart" style="width: 100%; height: 400px;"></div>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  // 导入 VueCal 和 ECharts
+  import VueCal from 'vue-cal'
+  import 'vue-cal/dist/vuecal.css'
+  import * as echarts from 'echarts'
+  import taskData from './data/tasks.json' 
+  
+  export default {
+    name: 'App',
+    components: {
+      VueCal,
+    },
+    data() {
+      return {
+        // 从 JSON 文件加载任务数据
+        calendarEvents: taskData.map(task => ({
+          start: task.start,
+          end: task.end,
+          title: task.title,
+          colorClass: task.colorClass, // 事件颜色
+        })),
+        // 示例的折线图数据，按需调整
+        lineChartData: {
+          xAxisData: taskData.map(task => task.start),
+          seriesData: taskData.map(task => task.priority === '高' ? 100 : 70), // 根据任务优先级设定完成度
+        },
+        treeData: {
+          name: '任务 A',
+          children: [
+            { name: '子任务 1' },
+            { name: '子任务 2', children: [
+                { name: '子任务 2.1' },
+                { name: '子任务 2.2' }
+              ]
+            },
+          ],
+        },
+      }
+    },
+    mounted() {
+      this.initLineChart()
+      this.initTreeChart()
+    },
+    methods: {
+      getEventStyle(event) {
+        return {
+          backgroundColor: this.getEventColor(event),
         }
-        > .content {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            flex: 1 1 0;
-            width: 100%;
-            height: 0;
-            padding: 0 0.938rem 0.938rem 0.938rem;
-            box-sizing: border-box;
-            > .left,
-            > .right {
-                display: flex;
-                flex-direction: column;
-                > .box {
-                    width: 100%;
-                    flex: 1 1 0;
-                    height: 0;
-                    background-image: var(--bg-img-2);
-                    background-repeat: no-repeat;
-                    background-size: 100% 100%;
-                    background-position: center;
-                    margin: 0 0 0.938rem 0;
-                    &:last-child {
-                        margin: 0;
-                    }
-                }
-            }
-            > .left {
-                height: 100%;
-                width: 34.375rem;
-            }
-            > .right {
-                height: 100%;
-                width: 34.375rem;
-            }
+      },
+  
+      getEventColor(event) {
+        switch (event.colorClass) {
+          case 'event-green':
+            return '#4caf50';
+          case 'event-blue':
+            return '#2196F3';
+          case 'event-yellow':
+            return '#FFC107';
+          case 'event-red':
+            return '#FF5722';
+          default:
+            return '#4caf50'; // 默认绿色
         }
-    }
-}
-</style>
+      },
+  
+      initLineChart() {
+        const lineChart = echarts.init(this.$refs.lineChart)
+        const option = {
+          xAxis: {
+            type: 'category',
+            data: this.lineChartData.xAxisData,
+          },
+          yAxis: {
+            type: 'value',
+          },
+          series: [
+            {
+              data: this.lineChartData.seriesData,
+              type: 'line',
+              smooth: true,
+              lineStyle: {
+                color: '#4caf50',
+              },
+              symbol: 'circle',
+              symbolSize: 8,
+            },
+          ],
+        }
+        lineChart.setOption(option)
+      },
+  
+      initTreeChart() {
+        const treeChart = echarts.init(this.$refs.treeChart)
+        const option = {
+          tooltip: {
+            trigger: 'item',
+            triggerOn: 'mousemove',
+          },
+          series: [
+            {
+              type: 'tree',
+              data: [this.treeData],
+              top: '5%',
+              left: '10%',
+              bottom: '5%',
+              right: '20%',
+              symbolSize: 7,
+              label: {
+                position: 'right',
+                verticalAlign: 'middle',
+                fontSize: 12,
+              },
+              itemStyle: {
+                color: '#4caf50',
+                borderColor: '#fff',
+                borderWidth: 1,
+              },
+              emphasis: {
+                itemStyle: {
+                  color: '#ff7043',
+                },
+                label: {
+                  color: '#fff',
+                },
+              },
+              leaves: {
+                itemStyle: {
+                  color: '#4caf50',
+                },
+              },
+            },
+          ],
+        }
+        treeChart.setOption(option)
+      },
+    },
+  }
+  </script>
+  
+  <style scoped>
+  .chart-container {
+    margin-bottom: 30px;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  /* 为不同类型的事件添加颜色 */
+  .event-green {
+    background-color: #4caf50 !important; /* 绿色 */
+  }
+  
+  .event-blue {
+    background-color: #2196F3 !important; /* 蓝色 */
+  }
+  
+  .event-yellow {
+    background-color: #FFC107 !important; /* 黄色 */
+  }
+  
+  .event-red {
+    background-color: #FF5722 !important; /* 红色 */
+  }
+  
+  .event-purple {
+    background-color: #9C27B0 !important; /* 紫色 */
+  }
+  
+  .event-grey {
+    background-color: #607D8B !important; /* 灰色 */
+  }
+  </style>
+  

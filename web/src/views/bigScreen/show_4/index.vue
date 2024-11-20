@@ -122,7 +122,7 @@
 </script>
 
 <template>
-    <div class="big-screen-view" v-if="dataContainer.piedata.ddl">
+    <div class="big-screen-view" v-if="dataContainer.piedata.step">
         <AutoScalContainerV2 :ratio="1920 / 1080" @onResizeScreen="handleResizeScreen" :fit="dataContainer.fit">
             <div class="big-screen-view-container" :style="{
                     '--bg-img-1': `url(${dataContainer.img.img_1})`,
@@ -133,12 +133,12 @@
                 </div>
                 <div class="content">
                     <div class="top">
-                        <totalData :data="dataContainer.piedata.ddl" />
+                        <totalData :data="dataContainer.piedata" />
                     </div>
                     <div class="content">
                         <div class="left">
                             <div class="box">
-                                <Box_2 :data="dataContainer.piedata.step"/>
+                                <Box_2 :data="dataContainer.piedata"/>
                             </div>
                             <div class="box">
                                 <Box_3 :data="dataContainer.piedata"/>
@@ -152,7 +152,7 @@
                         </div>
                         <div class="right">
                             <div class="box">
-                                <Box_4 />
+                                <Box_4 :data="dataContainer.piedata"/>
                             </div>
                             <div class="box">
                                 <Box_5 />

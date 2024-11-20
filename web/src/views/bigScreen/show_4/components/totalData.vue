@@ -19,7 +19,7 @@
             </div>
             <div class="region">
                 项目评估截止日期：
-                <span ref="date" class="region-number">{{ props.data }}</span>
+                <span ref="date" class="region-number">{{ props.data.begin }}</span>
             </div>
         </div>
     </div>
@@ -46,12 +46,16 @@
         }
     })
     console.log("***")
-    console.log(props.data)
+    console.log(props.data.begin)
 
 
     onMounted(() => {
-        new CountUp(totalCount.value, 12510 * 5).start()
-        new CountUp(time.value, 12510).start()
+        const currentTime = new Date();
+        const beginTime = new Date(props.data.begin);
+        const durationInMillis = currentTime - beginTime; // 获取毫秒差
+        date.value = Math.floor(durationInMillis / (1000 * 60)); // 转换为分钟
+        new CountUp(totalCount.value, date.value * 5).start()
+        new CountUp(time.value, date.value).start()
         new CountUp(people.value, 5).start()
         //new CountUp(date.value,year,month,day).start()
     })
