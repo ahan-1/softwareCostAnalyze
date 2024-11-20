@@ -1,223 +1,121 @@
 <script>
-/**
- * 盒子
- *  */
-import {
-    defineComponent,
-    ref,
-    getCurrentInstance,
-    reactive,
-    toRef,
-    computed,
-    onMounted,
-    onActivated,
-    watch,
-} from 'vue';
-import EchartContainer from '@/components/echartContainer.vue';
-import * as echarts from 'echarts';
+    /**
+     * 盒子
+     *  */
+    import {
+        defineComponent,
+        ref,
+        getCurrentInstance,
+        reactive,
+        toRef,
+        computed,
+        onMounted,
+        onActivated,
+        watch,
+    } from 'vue';
+    import EchartContainer from '@/components/echartContainer.vue';
+    import * as echarts from 'echarts';
 
-export default defineComponent({
-    components: {
-        EchartContainer,
-    },
-    props: {
-        dataInfo: {
-            type: Object,
-            default: () => {
-                return {};
+    export default defineComponent({
+        components: {
+            EchartContainer,
+        },
+        props: {
+            data: {
+                type: Object,
+                default: () => ({})
             },
         },
-    },
-    setup(props) {
-        const EchartContainerRef = ref(); //组件实例
-        const dataContainer = reactive({
-            loading: false,
-        });
-        watch(
-            [toRef(props, 'dataInfo')],
-            () => {
-                return;
-                let dataInfo = props.dataInfo.data || [];
-            },
-            {
-                immediate: true,
-            },
-        );
-        onMounted(() => {
-            if (!EchartContainerRef.value) return;
-            var option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        // 坐标轴指示器，坐标轴触发有效
-                        type: 'shadow', // 默认为直线，可选为：'line' | 'shadow'
-                    },
+        setup(props) {
+            console.log("---");
+            console.log(props.data.step);
+            const total =(props.data.step/100+1+0+0+0)/5;
+            const EchartContainerRef = ref(); //组件实例
+            const dataContainer = reactive({
+                loading: false,
+            });
+            watch(
+                [toRef(props, 'data')],
+                () => {
+                    return;
+                }, {
+                    immediate: true,
                 },
-                grid: {
-                    left: '2%',
-                    right: '4%',
-                    bottom: '14%',
-                    top: '16%',
-                    containLabel: true,
-                },
-                legend: {
-                    data: ['1', '2', '3'],
-                    right: 10,
-                    top: 12,
-                    textStyle: {
-                        color: '#fff',
+            );
+            onMounted(() => {
+                if (!EchartContainerRef.value) return;
+                var option = {
+                    tooltip: {
+                        trigger: 'item'
                     },
-                    itemWidth: 12,
-                    itemHeight: 10,
-                    // itemGap: 35
-                },
-                xAxis: {
-                    type: 'category',
-                    data: ['2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019'],
-                    axisLine: {
-                        lineStyle: {
-                            color: 'white',
-                        },
+                    legend: {
+                        top: '5%',
+                        left: 'center'
                     },
-                    axisLabel: {
-                        // interval: 0,
-                        // rotate: 40,
-                        textStyle: {
-                            fontFamily: 'Microsoft YaHei',
-                        },
-                    },
-                },
-
-                yAxis: {
-                    type: 'value',
-                    max: '1200',
-                    axisLine: {
-                        show: false,
-                        lineStyle: {
-                            color: 'white',
-                        },
-                    },
-                    splitLine: {
-                        show: true,
-                        lineStyle: {
-                            color: 'rgba(255,255,255,0.3)',
-                        },
-                    },
-                    axisLabel: {},
-                },
-                dataZoom: [
-                    {
-                        show: true,
-                        height: 12,
-                        xAxisIndex: [0],
-                        bottom: '8%',
-                        start: 10,
-                        end: 90,
-                        handleIcon:
-                            'path://M306.1,413c0,2.2-1.8,4-4,4h-59.8c-2.2,0-4-1.8-4-4V200.8c0-2.2,1.8-4,4-4h59.8c2.2,0,4,1.8,4,4V413z',
-                        handleSize: '110%',
-                        handleStyle: {
-                            color: '#d3dee5',
-                        },
-                        textStyle: {
-                            color: '#fff',
-                        },
-                        borderColor: '#90979c',
-                    },
-                    {
-                        type: 'inside',
-                        show: true,
-                        height: 15,
-                        start: 1,
-                        end: 35,
-                    },
-                ],
-                series: [
-                    {
-                        name: '1',
-                        type: 'bar',
-                        barWidth: '15%',
+                    series: [{
+                        name: 'Access From',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
                         itemStyle: {
-                            normal: {
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                    {
-                                        offset: 0,
-                                        color: '#fccb05',
-                                    },
-                                    {
-                                        offset: 1,
-                                        color: '#f5804d',
-                                    },
-                                ]),
-                                barBorderRadius: 12,
-                            },
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
                         },
-                        data: [400, 400, 300, 300, 300, 400, 400, 400, 300],
-                    },
-                    {
-                        name: '2',
-                        type: 'bar',
-                        barWidth: '15%',
-                        itemStyle: {
-                            normal: {
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                    {
-                                        offset: 0,
-                                        color: '#8bd46e',
-                                    },
-                                    {
-                                        offset: 1,
-                                        color: '#09bcb7',
-                                    },
-                                ]),
-                                barBorderRadius: 11,
-                            },
+                        label: {
+                            show: false,
+                            position: 'center',
                         },
-                        data: [400, 500, 500, 500, 500, 400, 400, 500, 500],
-                    },
-                    {
-                        name: '3',
-                        type: 'bar',
-                        barWidth: '15%',
-                        itemStyle: {
-                            normal: {
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                    {
-                                        offset: 0,
-                                        color: '#248ff7',
-                                    },
-                                    {
-                                        offset: 1,
-                                        color: '#6851f1',
-                                    },
-                                ]),
-                                barBorderRadius: 11,
-                            },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 20,
+                                fontWeight: 'bold'
+                            }
                         },
-                        data: [400, 600, 700, 700, 1000, 400, 400, 600, 700],
-                    },
-                ],
+                        labelLine: {
+                            show: false
+                        },
+                        data: [{
+                                value: total,
+                                name: '已完成'
+                            },
+                            {
+                                value: 1-total,
+                                name: '未完成'
+                            }
+                        ]
+                    }]
+                };
+                /** 初始化图表 */
+                EchartContainerRef.value.initData(option);
+            });
+            return {
+                dataContainer,
+                EchartContainerRef,
             };
-            /** 初始化图表 */
-            EchartContainerRef.value.initData(option);
-        });
-        return {
-            dataContainer,
-            EchartContainerRef,
-        };
-    },
-});
+        },
+    });
 </script>
 
 <template>
     <div class="box-cp-container">
+        <div class="text_title">评估进度总览</div>
         <EchartContainer ref="EchartContainerRef"></EchartContainer>
     </div>
 </template>
 
 <style lang="scss" scoped>
-.box-cp-container {
-    width: 100%;
-    height: 100%;
-}
+    .box-cp-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    .text_title {
+        text-align: center;
+        /* 保持文本居中 */
+        font-size: 20px;
+        /* 设置字体大小为24像素 */
+        color: white
+    }
 </style>
