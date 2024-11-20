@@ -122,7 +122,7 @@
 </script>
 
 <template>
-    <div class="big-screen-view" v-if="dataContainer.piedata.step">
+    <div class="big-screen-view" >
         <AutoScalContainerV2 :ratio="1920 / 1080" @onResizeScreen="handleResizeScreen" :fit="dataContainer.fit">
             <div class="big-screen-view-container" :style="{
                     '--bg-img-1': `url(${dataContainer.img.img_1})`,

@@ -249,21 +249,21 @@
                                         isShow: true,
                                         afterTitle: ' - 编辑',
                                     })
-                                ">方式 1</el-dropdown-item>
+                                ">评估进度看板</el-dropdown-item>
                                 <el-dropdown-item divided 
                                     @click="
                                     handleResultb(scope.row, {
                                         isShow: true,
                                         afterTitle: ' - 编辑',
                                     })
-                                ">方式 2</el-dropdown-item>
+                                ">评估结果看板</el-dropdown-item>
                                 <el-dropdown-item divided 
                                     @click="
                                     handleResultc(scope.row, {
                                         isShow: true,
                                         afterTitle: ' - 编辑',
                                     })
-                                ">方式 3</el-dropdown-item>
+                                ">任务分配看板</el-dropdown-item>
                                 </el-dropdown-menu>
                                 </template>
                             </el-dropdown>

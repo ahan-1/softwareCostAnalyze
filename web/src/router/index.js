@@ -156,6 +156,16 @@ export const constantRoutes = [
                 },
             },
             {
+                path: 'generate-new',
+                component: () => import('@/views/exampleViews/generateNew/index.vue'),
+                name: 'generate-new',
+                meta: {
+                    layoutName: 'main',
+                    redirectName: 'main-redirect',
+                    hasTag: true,
+                },
+            },
+            {
                 path: 'role-list',
                 component: () => import('@/views/exampleViews/roleList/index.vue'),
                 name: 'role-list',

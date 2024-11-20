@@ -24,7 +24,15 @@ export default defineComponent({
     const fetchProjectInfo = async () => {
       dataContainer.loading = true;
       try {
-        const response = await getProjectInfo(2);
+          // 从 localStorage 获取 project_id
+          const projectId = localStorage.getItem('project_id');
+
+          if (!projectId) {
+            console.error('未找到项目 ID，请先选择项目');
+            dataContainer.loading = false;
+            return;
+          }
+        const response = await getProjectInfo(Number(projectId));
         console.log(response);
         if (response && response.project) {
           const {ufp_num,dfp_num} =response.project;

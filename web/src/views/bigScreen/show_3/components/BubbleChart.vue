@@ -2,10 +2,10 @@
 /**
  * 功能点气泡图
  */
-import {defineComponent, ref, reactive, onMounted} from 'vue';
+import { defineComponent, ref, reactive, onMounted } from 'vue';
 import EchartContainer from '@/components/echartContainer.vue';
 import * as echarts from 'echarts';
-import {getModuleInfo} from '@/api/EvaluationResult/index.ts'; // 假设这是调用接口的方法
+import { getModuleInfo } from '@/api/EvaluationResult/index.ts'; // 假设这是调用接口的方法
 
 export default defineComponent({
   components: {
@@ -26,9 +26,19 @@ export default defineComponent({
 
     const fetchProjectData = async () => {
       dataContainer.loading = true;
+
       try {
-        //暂时将id设为1写死
-        const response = await getModuleInfo(2); // 调用接口获取数据
+        // 从 localStorage 获取 project_id
+        const projectId = localStorage.getItem('project_id');
+
+        if (!projectId) {
+          console.error('未找到项目 ID，请先选择项目');
+          dataContainer.loading = false;
+          return;
+        }
+
+        // 调用接口获取数据
+        const response = await getModuleInfo(Number(projectId));
         if (response.isOk && response.project) {
           const modules = response.project.map((module) => ({
             module_name: module.module_name,
@@ -59,8 +69,8 @@ export default defineComponent({
 
       const option = {
         backgroundColor: new echarts.graphic.RadialGradient(0.3, 0.3, 0.8, [
-          {offset: 0, color: '#f7f8fa'},
-          {offset: 1, color: '#cdd0d5'},
+          { offset: 0, color: '#f7f8fa' },
+          { offset: 1, color: '#cdd0d5' },
         ]),
         title: {
           text: '据模块划分的功能点气泡图',
@@ -76,13 +86,13 @@ export default defineComponent({
         xAxis: {
           name: '成本',
           splitLine: {
-            lineStyle: {type: 'dashed'},
+            lineStyle: { type: 'dashed' },
           },
         },
         yAxis: {
           name: '价值',
           splitLine: {
-            lineStyle: {type: 'dashed'},
+            lineStyle: { type: 'dashed' },
           },
           scale: true,
         },
@@ -105,8 +115,8 @@ export default defineComponent({
               shadowColor: 'rgba(120, 36, 50, 0.5)',
               shadowOffsetY: 5,
               color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [
-                {offset: 0, color: 'rgb(251, 118, 123)'},
-                {offset: 1, color: 'rgb(204, 46, 72)'},
+                { offset: 0, color: 'rgb(251, 118, 123)' },
+                { offset: 1, color: 'rgb(204, 46, 72)' },
               ]),
             },
           },

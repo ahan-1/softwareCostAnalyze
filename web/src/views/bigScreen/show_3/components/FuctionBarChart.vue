@@ -30,7 +30,16 @@ export default defineComponent({
     const fetchProjectData = async () => {
       dataContainer.loading = true;
       try {
-        const response = await getProjectInfo(1); // 调用接口获取数据
+        // 从 localStorage 获取 project_id
+        const projectId = localStorage.getItem('project_id');
+
+        if (!projectId) {
+          console.error('未找到项目 ID，请先选择项目');
+          dataContainer.loading = false;
+          return;
+        }
+
+        const response = await getProjectInfo(Number(projectId)); // 调用接口获取数据
         if (response.isOk && response.project) {
           const {ei_num, eo_num, eq_num, ilf_num, elf_num, project_name} = response.project;
           dataContainer.chartData.xAxis = ['ei_num', 'eo_num', 'eq_num', 'ilf_num', 'elf_num'];

@@ -117,6 +117,12 @@ const allApi = {
                 number: 1,
             },
             {
+                name: 'generate-new',
+                title: '生成评估报告',
+                iconName: 'svg:laptop-check.svg',
+                number: 4,
+            },
+            {
                 title: '站内链接',
                 iconName: 'svg:aligncenter-fill.svg',
                 childs: [
