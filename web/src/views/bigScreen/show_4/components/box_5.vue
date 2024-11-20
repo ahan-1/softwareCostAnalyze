@@ -45,99 +45,71 @@ export default defineComponent({
         );
         onMounted(() => {
             if (!EchartContainerRef.value) return;
+            // prettier-ignore
+            const hours = [
+            "初级阶段", "中期阶段", "最终阶段"
+            ];
+            // prettier-ignore
+            const days = [
+            "项目创建", "计算功能点", "综合造价计算", "报告生成", "报告评审"
+            ];
+            // prettier-ignore
+            const data = [
+            [0, 0, 5], [0, 1, 3], [0, 2, 2],
+            [1, 0, 7], [1, 1, 4], [1, 2, 6],
+            [2, 0, 8], [2, 1, 5], [2, 2, 3],
+            [3, 0, 2], [3, 1, 1], [3, 2, 4],
+            [4, 0, 6], [4, 1, 8], [4, 2, 5]
+            ].map(function (item) {
+            return [item[1], item[0], item[2] || '-'];
+            });
+
             var option = {
-                title: {
-                    text: '',
-                },
-                tooltip: {},
-                legend: {
-                    top: 20,
-                    itemWidth: 12,
-                    itemHeight: 12,
-                    data: ['预算分配（Allocated Budget）', '实际开销（Actual Spending）'],
-                    textStyle: {
-                        color: '#fff',
-                    },
-                },
-                radar: {
-                    radius: '60%',
-                    splitNumber: 8,
-                    axisLine: {
-                        lineStyle: {
-                            color: '#fff',
-                            opacity: 0.2,
-                        },
-                    },
-                    splitLine: {
-                        lineStyle: {
-                            color: '#fff',
-                            opacity: 0.2,
-                        },
-                    },
-                    splitArea: {
-                        areaStyle: {
-                            color: 'rgba(127,95,132,.3)',
-                            opacity: 1,
-                            shadowBlur: 45,
-                            shadowColor: 'rgba(0,0,0,.5)',
-                            shadowOffsetX: 0,
-                            shadowOffsetY: 15,
-                        },
-                    },
-                    indicator: [
-                        {
-                            name: 'Sales',
-                            max: 6000,
-                        },
-                        {
-                            name: 'Administration',
-                            max: 16000,
-                        },
-                        {
-                            name: 'Information Techology',
-                            max: 30000,
-                        },
-                        {
-                            name: 'Customer Support',
-                            max: 35000,
-                        },
-                        {
-                            name: 'Development',
-                            max: 50000,
-                        },
-                        {
-                            name: 'Marketing',
-                            max: 25000,
-                        },
-                    ],
-                },
-                series: [
-                    {
-                        name: '预算 vs 开销（Budget vs spending）',
-                        type: 'radar',
-                        symbolSize: 0,
-                        areaStyle: {
-                            normal: {
-                                shadowBlur: 13,
-                                shadowColor: 'rgba(0,0,0,.2)',
-                                shadowOffsetX: 0,
-                                shadowOffsetY: 10,
-                                opacity: 1,
-                            },
-                        },
-                        data: [
-                            {
-                                value: [5000, 7000, 12000, 11000, 15000, 14000],
-                                name: '预算分配（Allocated Budget）',
-                            },
-                            {
-                                value: [2500, 12000, 8000, 8500, 12000, 12000],
-                                name: '实际开销（Actual Spending）',
-                            },
-                        ],
-                    },
-                ],
-                color: ['#ef4b4c', '#b1eadb'],
+            tooltip: {
+            position: 'top'
+            },
+            grid: {
+            height: '50%',
+            top: '10%'
+            },
+            xAxis: {
+            type: 'category',
+            data: hours,
+            splitArea: {
+            show: true
+            }
+            },
+            yAxis: {
+            type: 'category',
+            data: days,
+            splitArea: {
+            show: true
+            }
+            },
+            visualMap: {
+            min: 0,
+            max: 10,
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            bottom: '15%'
+            },
+            series: [
+            {
+            name: '资源风险评估',
+            type: 'heatmap',
+            data: data,
+            label: {
+            show: true
+            },
+            emphasis: {
+            itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+            }
+            }
+            ]
             };
             /** 初始化图表 */
             EchartContainerRef.value.initData(option);
@@ -152,6 +124,7 @@ export default defineComponent({
 
 <template>
     <div class="box-cp-container">
+        <div class="text_title">资源风险评估</div>
         <EchartContainer ref="EchartContainerRef"></EchartContainer>
     </div>
 </template>
@@ -160,5 +133,10 @@ export default defineComponent({
 .box-cp-container {
     width: 100%;
     height: 100%;
+}
+.text_title{
+text-align: center; /* 保持文本居中 */
+font-size: 24px; /* 设置字体大小为24像素 */
+color:white
 }
 </style>

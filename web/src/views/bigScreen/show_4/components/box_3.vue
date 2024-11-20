@@ -1,204 +1,182 @@
 <script>
-/**
- * 盒子
- *  */
-import {
-    defineComponent,
-    ref,
-    getCurrentInstance,
-    reactive,
-    toRef,
-    computed,
-    onMounted,
-    onActivated,
-    watch,
-} from 'vue';
-import EchartContainer from '@/components/echartContainer.vue';
-import * as echarts from 'echarts';
+    /**
+     * 盒子
+     *  */
+    import {
+        defineComponent,
+        ref,
+        getCurrentInstance,
+        reactive,
+        toRef,
+        computed,
+        onMounted,
+        onActivated,
+        watch,
+    } from 'vue';
+    import EchartContainer from '@/components/echartContainer.vue';
+    import * as echarts from 'echarts';
 
-export default defineComponent({
-    components: {
-        EchartContainer,
-    },
-    props: {
-        dataInfo: {
-            type: Object,
-            default: () => {
-                return {};
+    export default defineComponent({
+        components: {
+            EchartContainer,
+        },
+        props: {
+            data: {
+                type: Object,
+                default: () => {
+                    return {};
+                },
             },
         },
-    },
-    setup(props) {
-        const EchartContainerRef = ref(); //组件实例
-        const dataContainer = reactive({
-            loading: false,
-        });
-        watch(
-            [toRef(props, 'dataInfo')],
-            () => {
-                return;
-                let dataInfo = props.dataInfo.data || [];
-            },
-            {
-                immediate: true,
-            },
-        );
-        onMounted(() => {
-            if (!EchartContainerRef.value) return;
-            var scale = 0.6;
-            var echartData = [
-                {
-                    value: 2154,
-                    name: '曲阜师范大学',
+        setup(props) {
+            console.log(props.data.step)
+            const EchartContainerRef = ref(); //组件实例
+            const dataContainer = reactive({
+                loading: false,
+            });
+            watch(
+                [toRef(props, 'dataInfo')],
+                () => {
+                    return;
+                    let dataInfo = props.dataInfo.data || [];
+                }, {
+                    immediate: true,
                 },
-                {
-                    value: 3854,
-                    name: '潍坊学院',
-                },
-                {
-                    value: 3515,
-                    name: '青岛职业技术学院',
-                },
-                {
-                    value: 3515,
-                    name: '淄博师范高等专科',
-                },
-                {
-                    value: 3854,
-                    name: '鲁东大学',
-                },
-                {
-                    value: 2154,
-                    name: '山东师范大学',
-                },
-            ];
-            var rich = {
-                yellow: {
-                    color: '#ffc72b',
-                    fontSize: 30 * scale,
-                    padding: [5, 4],
-                    align: 'center',
-                },
-                total: {
-                    color: '#ffc72b',
-                    fontSize: 40 * scale,
-                    align: 'center',
-                },
-                white: {
-                    color: '#fff',
-                    align: 'center',
-                    fontSize: 14 * scale,
-                    padding: [21, 0],
-                },
-                blue: {
-                    color: '#49dff0',
-                    fontSize: 16 * scale,
-                    align: 'center',
-                },
-                hr: {
-                    borderColor: '#0b5263',
-                    width: '100%',
-                    borderWidth: 1,
-                    height: 0,
-                },
-            };
-            let option = {
-                title: {
-                    text: '总考生数',
-                    left: 'center',
-                    top: '53%',
-                    padding: [24, 0],
-                    textStyle: {
-                        color: '#fff',
-                        fontSize: 18 * scale,
+            );
+            onMounted(() => {
+                if (!EchartContainerRef.value) return;
+                var scale = 0.6;
+                var rich = {
+                    yellow: {
+                        color: '#ffc72b',
+                        fontSize: 30 * scale,
+                        padding: [5, 4],
                         align: 'center',
                     },
-                },
-                legend: {
-                    selectedMode: false,
-                    formatter: function (name) {
-                        var total = 0; //各科正确率总和
-                        var averagePercent; //综合正确率
-                        echartData.forEach(function (value, index, array) {
-                            total += value.value;
-                        });
-                        return '{total|' + total + '}';
+                    total: {
+                        color: '#ffc72b',
+                        fontSize: 40 * scale,
+                        align: 'center',
                     },
-                    data: [echartData[0].name],
-                    // data: ['高等教育学'],
-                    // itemGap: 50,
-                    left: 'center',
-                    top: 'center',
-                    icon: 'none',
-                    align: 'center',
-                    textStyle: {
+                    white: {
                         color: '#fff',
+                        align: 'center',
+                        fontSize: 14 * scale,
+                        padding: [21, 0],
+                    },
+                    blue: {
+                        color: '#49dff0',
                         fontSize: 16 * scale,
-                        rich: rich,
+                        align: 'center',
                     },
-                },
-                series: [
-                    {
-                        name: '总考生数量',
-                        type: 'pie',
-                        radius: ['42%', '50%'],
-                        hoverAnimation: false,
-                        color: ['#c487ee', '#deb140', '#49dff0', '#034079', '#6f81da', '#00ffb4'],
-                        label: {
-                            normal: {
-                                formatter: function (params, ticket, callback) {
-                                    var total = 0; //考生总数量
-                                    var percent = 0; //考生占比
-                                    echartData.forEach(function (value, index, array) {
-                                        total += value.value;
-                                    });
-                                    percent = ((params.value / total) * 100).toFixed(1);
-                                    return (
-                                        '{white|' +
-                                        params.name +
-                                        '}\n{hr|}\n{yellow|' +
-                                        params.value +
-                                        '}\n{blue|' +
-                                        percent +
-                                        '%}'
-                                    );
-                                },
-                                rich: rich,
-                            },
-                        },
-                        labelLine: {
-                            normal: {
-                                length: 55 * scale,
-                                length2: 0,
-                                lineStyle: {
-                                    color: '#0b5263',
-                                },
-                            },
-                        },
-                        data: echartData,
+                    hr: {
+                        borderColor: '#0b5263',
+                        width: '100%',
+                        borderWidth: 1,
+                        height: 0,
                     },
-                ],
+                };
+                let option = {
+                    grid: {
+                        top: '3%',
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01]
+                    },
+                    yAxis: [{
+                        type: 'category',
+                        inverse: true,
+                        data: ['项目创建', '计算功能点', '综合造价计算', '报告生成', '报告评审'],
+                        axisLine: {
+                            show: false,
+                        },
+                        axisTick: {
+                            show: false,
+                        },
+                        axisLabel: {
+                            color: "#fff"
+                        }
+                    }, {
+                        type: 'category',
+                        inverse: true,
+                        data: ['完成', props.data.status, '进行中', '未开始', '未开始'],
+                        axisLine: {
+                            show: false,
+                        },
+                        axisTick: {
+                            show: false,
+                        },
+                        axisLabel: {
+                            color: "#fff"
+                        }
+                    }],
+                    series: [{
+                            name: '条',
+                            type: 'bar',
+                            data: [100, props.data.step, 10, 0, 0],
+                            yAxisIndex: 0,
+                            itemStyle: {
+                                barBorderRadius: 20,
+                                // color:function(params){
+                                // var num = myColor.length;
+                                // return mYColor[params.valueIndex]
+                                // }
+                            },
+                            barCategoryGap: 50,
+                            barWidth: 10,
+                            label: {
+                                show: true,
+                                position: 'inside',
+                                formatter: "{c}%"
+                            }
+                        },
+                        {
+                            name: '框',
+                            type: 'bar',
+                            barCategoryGap: 50,
+                            barWidth: 15,
+                            yAxisIndex: 1,
+                            itemStyle: {
+                                color: "none",
+                                borderColor: "#00c1de",
+                                borderWidth: 3,
+                                barBorderRadius: 15,
+                            },
+                            data: [100, 100, 100, 100, 100, 100]
+                        }
+                    ]
+                };
+                /** 初始化图表 */
+                EchartContainerRef.value.initData(option);
+            });
+            return {
+                dataContainer,
+                EchartContainerRef,
             };
-            /** 初始化图表 */
-            EchartContainerRef.value.initData(option);
-        });
-        return {
-            dataContainer,
-            EchartContainerRef,
-        };
-    },
-});
+        },
+    });
 </script>
 
 <template>
     <div class="box-cp-container">
+        <div class="text_title">评估进度细化</div>
         <EchartContainer ref="EchartContainerRef"></EchartContainer>
     </div>
 </template>
 
 <style lang="scss" scoped>
-.box-cp-container {
-    width: 100%;
-    height: 100%;
-}
+    .box-cp-container {
+        width: 100%;
+        height: 100%;
+    }
+    .text_title{
+    text-align: center; /* 保持文本居中 */
+    font-size: 24px; /* 设置字体大小为24像素 */
+    color:white
+    }
 </style>

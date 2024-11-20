@@ -78,7 +78,7 @@ export default defineComponent({
                 "
                 to="/big-screen/show_4?fit=cover"
             >
-                cover缩放模式
+                &#x1F5DD;全屏
             </router-link>
             <router-link
                 style="
@@ -89,7 +89,7 @@ export default defineComponent({
                 "
                 to="/big-screen/show_4?fit=contain"
             >
-                contain缩放模式
+                退出全屏
             </router-link>
         </div>
     </div>
