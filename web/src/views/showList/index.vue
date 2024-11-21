@@ -1,277 +1,201 @@
 <template>
-    <div class="page-container main-view">
-        <el-row :gutter="0" class="page-query-box">
-            <DifinCollapse
-                :show="dataContainer.showSearch"
-                :showBt="true"
-                @onClick="dataContainer.showSearch = !dataContainer.showSearch"
-            >
-                <el-col :span="24" :xs="24">
-                    <el-form
-                        :model="dataContainer.form"
-                        ref="QueryFormRef"
-                        :inline="true"
-                        label-width="110px"
-                    >
-                        <el-row :gutter="0">
-                            <el-col class="anchor-point-target" :span="5" :xs="5">
-                                <el-form-item label="项目名称" prop="project_name">
-                                    <el-input
-                                        style="width: 100%"
-                                        v-model="searchKeyword"
-                                        placeholder="请输入"
-                                        clearable
-                                        @clear="handleQuery"
-                                        @keyup.enter="searchProgBN"
-                                    />
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="5" :xs="5">
-                                <el-form-item label="状态" prop="status">
-                                    <el-select
-                                        style="width: 100%"
-                                        v-model="searchKeystatus"
-                                        placeholder="请选择"
-                                        clearable
-                                        @clear="handleQuery"
-                                        @change="searchProgStatus"
-                                    >
-                                        <el-option
-                                            v-for="item in dataContainer.optionList"
-                                            :key="item.id"
-                                            :label="item.label"
-                                            :value="item.value"
-                                        ></el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="6" :xs="6">
-                                <el-form-item label="截止日期" prop="date">
-                                    <el-date-picker v-model="searchdate" size="default" @change="handleDateChange"></el-date-picker>   
-                                </el-form-item>                         
-                            </el-col>
-                            <!-- <div>
-                                <label for="datePicker">选择日期:</label>
-                                <input type="date" id="datePicker" v-model="selectedDate" @change="handleDateChange">
-                                <p>选择的日期是: {{ searchdate }}</p>
-                            </div> -->
-                            <el-col :span="2" :xs="4">
-                                <el-form-item label=" ">
-                                    <el-button type="primary" @click="handleNSD">
-                                        <SvgIcon
-                                            :style="'width:15px;height:15px;margin-right:5px;'"
-                                            name="svg:search-bt.svg"
-                                        ></SvgIcon>
-                                        查询
-                                    </el-button>
-                                </el-form-item>
-                            </el-col>
-
-                            <el-col :span="4" :xs="4">
-                                <el-form-item label=" ">
-                                    <el-button @click="resetQuery">
-                                        <SvgIcon
-                                            :style="'width:15px;height:15px;margin-right:5px;'"
-                                            name="svg:redo.svg"
-                                        ></SvgIcon>
-                                        重置
-                                    </el-button>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                    </el-form>
-                </el-col>
-            </DifinCollapse>
+    <div class="page-container">
+      <!-- 搜索区域 -->
+      <div class="search-container">
+        <el-row :gutter="20" align="middle">
+          <!-- 项目名称输入框 -->
+          <el-col :span="6">
+            <el-form-item label="项目名称">
+              <el-input
+                v-model="searchKeyword"
+                placeholder="请输入项目名称"
+                clearable
+                @keyup.enter="searchProgBN"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <!-- 状态选择框 -->
+          <el-col :span="6">
+            <el-form-item label="状态">
+              <el-select
+                v-model="searchKeystatus"
+                placeholder="请选择状态"
+                clearable
+                 >
+                <el-option
+                  v-for="item in dataContainer.optionList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <!-- 截止日期选择框 -->
+          <el-col :span="6" :xs="6">
+            <el-form-item label="截止日期" prop="date">
+                <el-date-picker
+                 v-model="searchdate" 
+                size="default" 
+                ></el-date-picker>   
+            </el-form-item>
+          </el-col>
+          <!-- 按钮操作 -->
+          <el-col :span="6" class="search-actions">
+            <el-button type="primary" @click="searchProgNSD">查询</el-button>
+            <el-button type="default" @click="resetQuery">重置</el-button>
+          </el-col>
         </el-row>
-        <div class="table-box content-container page-content-box">
-
-            <div class="table-container">
-                <el-table
-                    v-loading="dataContainer.loading"
-                    :data="dataContainer.list"
-                    border
-                    @cell-dblclick="handleCopyVale"
-                    @sort-change="handleSortChange"
-                    height="100%"
-                >
-                    <el-table-column
-                        label="多选组件"
-                        align="center"
-                        width="40"
-                        fixed="left"
-                        class-name="small-padding fixed-width"
-                    >
-                        <template #header>
-                            <el-checkbox
-                                style="height: fit-content"
-                                v-model="dataContainer.checked__"
-                                @change="
-                                    (e) => {
-                                        changeAllCheck(e);
-                                        handleSelectionChange(
-                                            dataContainer.list.filter((e) => e.checked__),
-                                        );
-                                    }
-                                "
-                                label=""
-                                size="large"
-                            />
-                        </template>
-                        <template #default="scope">
-                            <el-checkbox
-                                v-model="scope.row.checked__"
-                                :status="isDisabled(scope.row)"
-                                @change="
-                                    () => {
-                                        handleSelectionChange(
-                                            dataContainer.list.filter((e) => e.checked__),
-                                        );
-                                    }
-                                "
-                                label=""
-                                size="large"
-                            />
-                        </template>
-                    </el-table-column>
-                    <!-- <el-table-column
-                        type="index"
-                        align="center"
-                        label="序号"
-                        width="60"
-                        fixed="left"
-                    /> -->
-                    <el-table-column
-                        label="项目ID"
-                        show-overflow-tooltip
-                        align="center"
-                        min-width="170"
-                        prop="project_id"
-                        sortable="custom"
-                        :sort-orders="['descending', 'ascending']"
-                    />
-                    <el-table-column
-                        label="项目名称"
-                        show-overflow-tooltip
-                        align="center"
-                        min-width="170"
-                        prop="project_name"
-                        sortable="custom"
-                        :sort-orders="['descending', 'ascending']"
-                    />
-                    <el-table-column
-                        label="截止时间"
-                        show-overflow-tooltip
-                        align="center"
-                        prop="ddl"
-                        min-width="150"
-                        sortable="custom"
-                        :sort-orders="['descending', 'ascending']"
-                    />
-                    <el-table-column
-                        label="公司"
-                        show-overflow-tooltip
-                        align="center"
-                        prop="company"
-                        min-width="150"
-                        sortable="custom"
-                        :sort-orders="['descending', 'ascending']"
-                    />
-                    <el-table-column
-                        label="基本信息"
-                        show-overflow-tooltip
-                        align="center"
-                        prop="project_info"
-                        min-width="150"
-                        sortable="custom"
-                        :sort-orders="['descending', 'ascending']"
-                    />
-                    <el-table-column
-                        label="状态"
-                        show-overflow-tooltip
-                        align="center"
-                        prop="status"
-                        min-width="150"
-                        sortable="custom"
-                        :sort-orders="['descending', 'ascending']"
-                    >
-                        <template #default="scope">
-                            <DictTags
-                                :options="dataContainer.optionList"
-                                :value="scope.row.status"
-                                valueKey="value"
-                                labelKey="label"
-                            ></DictTags>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                        label="操作"
-                        width="250"
-                        fixed="right"
-                        class-name="small-padding fixed-width"
-                    >
-                        <template #default="scope">
-                            <el-button
-                                link
-                                type="primary"
-                                @click="
-                                    handleDetails(scope.row, {
-                                        isShow: true,
-                                        afterTitle: ' - 查看',
-                                    })
-                                "
-                            >
-                                项目详情
-                            </el-button>
-                            <el-button
-                                link
+      </div>
+      <!-- 内容区域 -->
+      <div class="content-wrapper">
+        <!-- 卡片容器 -->
+        <el-row :gutter="20" class="card-container">
+          <el-col :span="8" v-for="(item, index) in dataContainer.list" :key="index">
+            <el-card shadow="hover" class="project-card">
+              <div class="card-content">
+                <!-- 项目名称 -->
+                <h3 class="project-name">{{ item.project_name }}</h3>
+                <!-- 截止时间 -->
+                <p class="project-info">
+                  <strong>截止时间:</strong> {{ item.ddl }}
+                </p>
+                <!-- 公司 -->
+                <p class="project-info">
+                  <strong>所属公司:</strong> {{ item.company }}
+                </p>
+                <!-- 状态 -->
+                <p class="project-info">
+                  <strong>评估状态:</strong>
+                  <el-tag
+                    :type="item.status === '已评估' ? 'success' : item.status === '进行中' ? 'primary' : 'danger'"
+                  >
+                    {{ item.status }}
+                  </el-tag>
+                </p>
+              </div>
+<el-table-column
+    label="开始时间"
+    prop="begin"
+    v-if="false" 
+/>
+<el-table-column
+    label="EI编号"
+    prop="ei_num"
+    v-if="false" 
+/>
+<el-table-column
+    label="EO编号"
+    prop="eo_num"
+    v-if="false" 
+/>
+<el-table-column
+    label="EQ编号"
+    prop="eq_num"
+    v-if="false" 
+/>
+<el-table-column
+    label="ILF编号"
+    prop="ilf_num"
+    v-if="false" 
+/>
+<el-table-column
+    label="ELF编号"
+    prop="elf_num"
+    v-if="false" 
+/>
+<el-table-column
+    label="UFP"
+    prop="ufp"
+    v-if="false" 
+/>
+<el-table-column
+    label="DFP"
+    prop="dfp"
+    v-if="false" 
+/>
+<el-table-column
+    label="S"
+    prop="s"
+    v-if="false" 
+/>
+<el-table-column
+    label="步骤"
+    prop="step"
+    v-if="false" 
+/>
+<el-table-column
+    label="审核状态"
+    prop="auditStatus"
+    v-if="false" 
+/>
+<el-table-column
+    label="审核建议"
+    prop="auditSuggest"
+    v-if="false" 
+/>
+<el-table-column
+    label="URL"
+    prop="url"
+    v-if="false" 
+/>
+              <!-- 操作按钮 -->
+              <div class="card-actions">
+                <el-button type="primary" @click="handleDetails(item)">项目详情</el-button>
+                <el-button
+                            v-if="item.status === '进行中'"
                                 type="success"
                                 @click="
-                                    handleEdit(scope.row, {
+                                    handleEstimate(item, {
+                                        isShow: true,
+                                        afterTitle: ' - 评估',
+                                    })
+                                "
+                            >
+                                继续评估
+                            </el-button>
+                            <el-button
+                            v-if="item.status === '未评估'"
+                                type="warning"
+                                @click="
+                                    handleEstimate(item, {
                                         isShow: true,
                                         afterTitle: ' - 编辑',
                                     })
                                 "
                             >
-                                进入评估
+                                开始评估
                             </el-button>
-                            <el-dropdown>
-                                <span class="el-dropdown-link">
-                                查看结果
-                                <el-icon class="el-icon--right">
-                                    <arrow-down />
-                                </el-icon>
-                                </span>
-                                <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item divided 
-                                    @click="
-                                    handleResulta(scope.row, {
+                            <el-button
+                            v-if="item.status === '已评估'"
+                                type="info"
+                                @click="
+                                    handleEstimate(item, {
                                         isShow: true,
                                         afterTitle: ' - 编辑',
                                     })
-                                ">评估进度看板</el-dropdown-item>
-                                <el-dropdown-item divided 
-                                    @click="
-                                    handleResultb(scope.row, {
-                                        isShow: true,
-                                        afterTitle: ' - 编辑',
-                                    })
-                                ">评估结果看板</el-dropdown-item>
-                                <el-dropdown-item divided 
-                                    @click="
-                                    handleResultc(scope.row, {
-                                        isShow: true,
-                                        afterTitle: ' - 编辑',
-                                    })
-                                ">任务分配看板</el-dropdown-item>
-                                </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </div>
-            <div class="pagination-container">
+                                "
+                            >
+                                重新评估
+                            </el-button>
+                <el-dropdown>
+                  <el-button type="info" >
+                    查看结果
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item @click="handleResulta(item)">评估进度看板</el-dropdown-item>
+                      <el-dropdown-item @click="handleResultb(item)">评估结果看板</el-dropdown-item>
+                      <el-dropdown-item @click="handleResultc(item)">任务分配看板</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+        <!-- 分页 -->
+        <div class="pagination-container">
                 <el-pagination
                     v-show="true"
                     :total="dataContainer.config.total"
@@ -284,26 +208,26 @@
                     @size-change="
                         (size) => {
                             dataContainer.params.pageSize = size;
-                            getDataList();
+                            searchProgNSD();
                         }
                     "
                     @current-change="
                         (page) => {
                             dataContainer.params.pageNum = page;
-                            getDataList();
+                            searchProgNSD();
                         }
                     "
                 />
             </div>
-        </div>
+      </div>
     </div>
-</template>
+  </template>
 
 <script>
 /**
  * 页面例子
  */
-import {
+ import {
     defineComponent,
     onBeforeUnmount,
     ref,
@@ -324,6 +248,7 @@ import axios from 'axios';
 import { status } from 'nprogress';
 
 
+
 export default defineComponent({
     components: {
         DictTags,
@@ -332,9 +257,11 @@ export default defineComponent({
     setup() {
         const router = useRouter();
         const searchKeyword = ref('');
+        const tempname = ref('');
         const searchKeystatus = ref('');
+        const tempstatus = ref('');
         const searchdate = ref('');
-        const searchdat = ref('');
+        const tempdate = ref('');
         const selectedDate = ref('');
         const dataContainer = reactive({
             loading: false,
@@ -362,7 +289,7 @@ export default defineComponent({
         if (dataContainer.loading) return;
         dataContainer.loading = true;
     
-        fetch('http://localhost:9000/project/selectAllProjects')
+        fetch('http://localhost:9000/project/selectProjectsByNSD')
         .then(response => response.json())
         .then(res => {
             dataContainer.list = res.projects || [];
@@ -393,22 +320,7 @@ export default defineComponent({
             getDataList();
         }
 
-    // const searchProgBN = () => {
-    //   const projectName = searchKeyword.value;
-    //   if (projectName) {
-    //     axios.post('http://localhost:9000/project/selectProjectsByNameshr', { project_name: projectName })
-    //       .then(response => {
-    //         console.log('Response:', response.data);
-    //         // 在这里处理响应数据
-    //       })
-    //       .catch(error => {
-    //         console.error('Error:', error);
-    //         // 在这里处理错误
-    //       });
-    //   } else {
-    //     console.warn('Project name is empty');
-    //   }
-    // }
+
     const searchProgBN = () => {
     const projectName = searchKeyword.value;
     if (projectName) {
@@ -435,27 +347,10 @@ export default defineComponent({
 }
 
 
-    // const searchProgStatus = () => {
-    //   const ProjectStatus = searchKeystatus.value;
-    //   if (ProjectStatus) {
-    //     axios.post('http://localhost:9000/project/selectProjectsByStatus', { status: ProjectStatus })
-    //       .then(response => {
-    //         console.log('Response:', response.data);
-    //         // 在这里处理响应数据
-    //       })
-    //       .catch(error => {
-    //         console.error('Error:', error);
-    //         // 在这里处理错误
-    //       });
-    //   } else {
-    //     console.warn('Project status is empty');
-    //   }
-    // }
-
     const searchProgStatus = () => {
-  const ProjectStatus = searchKeystatus.value;
-  let statusString;
-
+    const ProjectStatus = searchKeystatus.value;
+    let statusString;
+        
   switch (ProjectStatus) {
     case 1:
       statusString = "未评估";
@@ -525,6 +420,125 @@ const handleDateChange = () => {
   
 }
 
+const searchProgNSD = () => {
+    const projectName = searchKeyword.value;
+    tempname.value = projectName;
+    const selectDate = searchdate.value;
+    let beijingTime;
+
+    if (selectDate) {
+        const utcDate = new Date(selectDate);
+        // Beijing time is UTC+8
+        const offset = 8 * 60; // 8 hours in minutes
+        const localDate = new Date(utcDate.getTime() + offset * 60 * 1000);
+        // Format the date to only include year, month, and day
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const day = String(localDate.getDate()).padStart(2, '0');
+        beijingTime = `${year}-${month}-${day}`;
+    } else {
+        beijingTime = null;
+    }
+    tempdate.value= beijingTime;
+    const ProjectStatus = searchKeystatus.value;
+    let statusString;
+
+    switch (ProjectStatus) {
+        case 1:
+            statusString = "未评估";
+            break;
+        case 2:
+            statusString = "已评估";
+            break;
+        case 3:
+            statusString = "进行中";
+            break;
+        default:
+            statusString = null;
+            break;
+    }
+    tempstatus.value=statusString;
+    axios.post('http://localhost:9000/project/selectProjectsByNSD', {
+        project_name: projectName,
+        ddl: beijingTime,
+        status: statusString,
+        pageNum: dataContainer.params.pageNum,
+        pageSize: dataContainer.params.pageSize
+    })
+    .then(response => {
+        console.log('Response:', response.data);
+        // 在这里处理响应数据
+        const res = response.data;
+        dataContainer.list = res.projects || [];
+        dataContainer.config.total = res.total;
+        /** 默认不选择 */
+        dataContainer.list.forEach((item) => {
+            item.checked__ = false;
+        });
+        dataContainer.checked__ = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // 在这里处理错误
+    });
+}
+
+
+const handleChangePage = () => {
+    axios.post('http://localhost:9000/project/selectProjectsByNSD', {
+        project_name: tempname.value,
+        ddl: tempdate.value,
+        status: tempstatus.value,
+        pageNum: dataContainer.params.pageNum,
+        pageSize: dataContainer.params.pageSize
+    })
+    .then(response => {
+        console.log('Response:', response.data);
+        // 在这里处理响应数据
+        const res = response.data;
+        dataContainer.list = res.projects || [];
+        dataContainer.config.total = res.total;
+        /** 默认不选择 */
+        dataContainer.list.forEach((item) => {
+            item.checked__ = false;
+        });
+        dataContainer.checked__ = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // 在这里处理错误
+    });
+}
+
+
+const searchAllProgNSD = () => {
+    axios.post('http://localhost:9000/project/selectProjectsByNSD', {
+        pageNum: dataContainer.params.pageNum,
+        pageSize: dataContainer.params.pageSize
+    })
+    .then(response => {
+        console.log('Response:', response.data);
+        // 在这里处理响应数据
+        const res = response.data;
+        dataContainer.list = res.projects || [];
+        dataContainer.config.total = res.total;
+        /** 默认不选择 */
+        dataContainer.list.forEach((item) => {
+            item.checked__ = false;
+        });
+        dataContainer.checked__ = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // 在这里处理错误
+    });
+
+
+
+}
+
+
+
         /** 搜索按钮操作 */
         function handleQuery() {
             dataContainer.params.pageNum = 1;
@@ -533,7 +547,10 @@ const handleDateChange = () => {
         /** 重置按钮操作 */
         function resetQuery() {
             dataContainer.form = {};
-            handleQuery();
+            searchKeyword.value="";
+            searchdate.value="";
+            searchKeystatus.value="";
+            searchAllProgNSD();
         }
         /** 导出数据 */
         function handleExport() {
@@ -552,6 +569,7 @@ const handleDateChange = () => {
         function handleDetails(row, querys) {
             if (row.project_id) {
                  localStorage.setItem('project_id', row.project_id);
+                 localStorage.setItem('project', ('project', JSON.stringify(row)));
              }
             router.push({
                 name: 'show-list-info',
@@ -567,7 +585,7 @@ const handleDateChange = () => {
                  localStorage.setItem('project_id', row.project_id);
              }
             router.push({
-                name: 'big-screen-show_4',//结果展示一
+                name: 'show-list-info',
                 params: {
                     sign: row.project_id ,
                 },
@@ -580,7 +598,7 @@ const handleDateChange = () => {
                  localStorage.setItem('project_id', row.project_id);
              }
             router.push({
-                name: 'big-screen-show_3',//结果展示二
+                name: 'show-list-info',
                 params: {
                     sign: row.project_id ,
                 },
@@ -593,7 +611,7 @@ const handleDateChange = () => {
                  localStorage.setItem('project_id', row.project_id);
              }
             router.push({
-                name: 'big-screen-show_2',//结果展示三
+                name: 'show-list-info',
                 params: {
                     sign: row.project_id ,
                 },
@@ -603,23 +621,16 @@ const handleDateChange = () => {
 
 
         /** 编辑按钮操作 */
-        function handleEdit(row, querys) {
+        function handleEstimate(row, querys) {
             router.push({
                 name: 'show-list-update',
                 params: {
-                    sign: row.id || new Date().getTime(),
+                    sign: row.project_id ,
                 },
                 querys,
             });
         }
-        /** 删除 */
-        function handleDelete(rows) {
-            confirm('确认删除所选数据？', '提示！')
-                .then(() => {
-                    messageSuccess('删除成功');
-                })
-                .catch(() => {});
-        }
+        
         /** 批次确认多选操作 */
         function changeAllCheck(value) {
             if (!value) {
@@ -652,11 +663,11 @@ const handleDateChange = () => {
             handleSortChange,
             handleQuery,
             resetQuery,
+            searchAllProgNSD,
             handleExport,
             handleAdd,
             handleDetails,
-            handleEdit,
-            handleDelete,
+            handleEstimate,
             hasPermi,
             changeAllCheck,
             isDisabled,
@@ -670,9 +681,11 @@ const handleDateChange = () => {
             selectedDate,
             handleResulta,
             handleResultb,
-            handleResultc
+            handleResultc,
+            searchProgNSD,
+            handleChangePage
             
-            
+
         };
     },
 });
@@ -737,5 +750,105 @@ const handleDateChange = () => {
         padding: 0;
         margin: var(--view-gap) 0 0 0;
     }
+}
+.page-container {
+  padding: 20px; /* 内部间距 */
+  background-color: #ebeaea; /* 背景颜色 */
+  width: 95%; /* 宽度设为95%，占满父容器的95% */
+  height: 600px; /* 固定高度 */
+  border: 1px solid #dcdcdc1d; /* 边框颜色 */
+  margin: 20px auto; /* 上下左右都有20px的外边距，并且水平居中 */
+  border-radius: 10px; /* 圆角效果 */
+}
+
+.card-container {
+  margin-top: 20px;
+}
+
+.card-wrapper {
+  background-color: #ffffff; /* 背景框的颜色 */
+  padding: 20px;
+  border-radius: 10px; /* 圆角效果 */
+  border: 1px solid #e8e8e84b; /* 边框颜色 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* 阴影效果 */
+}
+
+.project-card {
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* 给卡片添加阴影 */
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* 增加悬浮时的阴影 */
+  transform: translateY(-5px); /* 悬浮效果 */
+}
+
+.card-content {
+  margin-bottom: 15px;
+}
+
+.project-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.project-info {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 5px;
+  line-height: 3; /* 增加每行文字的间距 */
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-actions el-button {
+  margin-right: 10px;
+}
+
+.el-button {
+  border-radius: 6px; /* 按钮圆角 */
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+/* 搜索区域 */
+.search-container {
+  background-color: #f7f7f7;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.search-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.page-container {
+  padding: 20px;
+  background-color: #ebeaea;
+  width: 95%;
+  height: auto;
+  border: 1px solid #dcdcdc1d;
+  margin: 20px auto;
+  border-radius: 10px;
 }
 </style>
